@@ -1,0 +1,12 @@
+body {
+  font-family: 'Montserrat', sans-serif;
+  position: relative;
+}
+.wrapper {
+  padding: 0 5vw;
+}
+#modal-root {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
