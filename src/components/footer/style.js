@@ -2,9 +2,9 @@ import styled from 'styled-components';
 
 export const StyledFooter = styled.div`
   /* margin-top: 100px; */
-  background-color: #efefef;
+  background: rgba(0, 0, 0, 0.85);
   height: 80px;
-  border-top: 1px solid #b1bac0;
+  /* border-top: 1px solid #b1bac0; */
   /* padding: 20px; */
   display: flex;
   justify-content: space-between;
@@ -19,6 +19,11 @@ export const StyledFooter = styled.div`
     /* span {
       margin-right: 50px;
     } */
+  }
+  .footer-middle {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
   }
   .footer-right {
     /* margin-right: 0;

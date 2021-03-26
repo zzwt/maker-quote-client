@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 export const StyledPeople = styled.div`
-  background: #2a2a2a;
   padding: 50px 0;
   /* color: white; */
 
@@ -79,5 +78,10 @@ export const StyledPeople = styled.div`
     .no-author {
       color: white;
     }
+  }
+  .loadmore {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
   }
 `;

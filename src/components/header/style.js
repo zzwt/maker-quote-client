@@ -24,11 +24,11 @@ export const StyledHeader = styled.div`
       color: darkgrey;
       padding: 5px;
       &:hover {
-        border-bottom: 2px solid #f9735b;
+        border-bottom: 2px solid #fdb035;
       }
     }
     .link-active {
-      border-bottom: 2px solid #f9735b;
+      border-bottom: 2px solid #fdb035;
     }
   }
 `;

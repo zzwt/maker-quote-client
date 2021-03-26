@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 import bgImage from '../../public/img/banner.jpg';
 export const StyledQuotes = styled.div`
-  background: #2a2a2a;
-
   .banner {
     /* width: 100%; */
     background-image: url(${bgImage});
@@ -34,7 +32,7 @@ export const StyledQuotes = styled.div`
   }
   .main-wrapper {
     display: flex;
-    padding-bottom: 70px;
+    padding-bottom: 30px;
     .tags-list {
       display: flex;
       justify-content: flex-start;
@@ -63,11 +61,21 @@ export const StyledQuotes = styled.div`
       /* padding-right: 50px; */
       /* width: 1300px; */
       flex-grow: 1;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      column-gap: 25px;
+      display: flex;
+      flex-direction: column;
+      /* align-items: center; */
       /* background: green; */
       padding: 0 35px 35px;
+      .main-quote {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        column-gap: 25px;
+      }
+      .main-loadmore {
+        display: flex;
+        justify-content: center;
+        margin-top: 50px;
+      }
     }
   }
 `;

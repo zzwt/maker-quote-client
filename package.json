@@ -23,6 +23,7 @@
     "@ant-design/pro-layout": "^6.5.0",
     "@apollo/client": "^3.3.12",
     "@umijs/preset-react": "1.x",
+    "apollo-link-logger": "^2.0.0",
     "axios": "^0.21.1",
     "color-convert": "^2.0.1",
     "graphql": "^15.5.0",

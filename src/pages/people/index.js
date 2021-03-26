@@ -1,80 +1,112 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getPeople } from '@/services';
+// import { getPeople } from '@/services';
+import { SORT, PAGE_SIZE } from '@/services/constants';
 import { List } from 'immutable';
 import debounce from 'lodash/debounce';
 import { useLazyQuery } from '@apollo/client';
-import { SearchAuthorName, SearchAuthorNameByAll } from '@/services/query';
+import {
+  GetAutoSuggestionNames,
+  SearchAllAuthorsByName,
+} from '@/services/query';
 import PersonItem from '@/components/PersonItem';
 import { StyledPeople } from './style.js';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import Select from 'react-select';
 import Autosuggest from 'react-autosuggest';
-import Spinner from '@/../public/img/spinner.gif';
-
+import SpinnerImg from '@/../public/img/spinner.gif';
+import Button from '@/components/button';
+import Modal from '@/components/modal';
+import Spinner from '@/components/spinner';
 export default function PeoplePage() {
   const [people, setPeople] = useState(List());
   const [selectedOption, setSelectedOption] = useState(options[0]);
-
   const [suggestions, setSuggestions] = useState([]);
   const [searchWord, setSearchWord] = useState('');
+  const [page, setPage] = useState(1);
 
   const [
-    searchName,
-    { loading: loadingNames, data: searchNameResponse },
-  ] = useLazyQuery(SearchAuthorName);
+    getAutoSuggestionNames,
+    { loading: loadingNames, data: autoSuggestionNamesResponse },
+  ] = useLazyQuery(GetAutoSuggestionNames, { fetchPolicy: 'no-cache' });
   const [
-    searchNameByAll,
-    { loading: loadingNamesByAll, data: searchNameByAllResponse },
-  ] = useLazyQuery(SearchAuthorNameByAll);
+    searchAllAuthorsByName,
+    { loading: loadingAllAuthors, data: allAuthorsByNameResponse },
+  ] = useLazyQuery(SearchAllAuthorsByName, {
+    variables: {
+      filter: {},
+      limit: PAGE_SIZE,
+      start: PAGE_SIZE * (page - 1),
+      sort: selectedOption.value === SORT.NAME_ASC ? 'name:asc' : 'name:desc',
+    },
+  });
 
   const inputProps = {
-    placeholder: 'Type Author',
+    placeholder: 'Type Author Name',
     value: searchWord,
     onChange: (event, { newValue }) => {
       setSearchWord(newValue);
     },
   };
 
-  const getInitialData = async () => {
-    const response = await getPeople();
-    setPeople(List(response));
-  };
+  // const getInitialData = async () => {
+  //   const response = await getPeople();
+
+  // };
   useEffect(() => {
-    getInitialData();
+    searchAllAuthorsByName();
   }, []);
 
   useEffect(() => {
-    setPeople(sortAuthors(selectedOption.sort));
-  }, [selectedOption]);
+    if (allAuthorsByNameResponse) {
+      console.log('page', page);
+      if (page === 1) return setPeople(List(allAuthorsByNameResponse.authors));
+      setPeople(people.concat(allAuthorsByNameResponse.authors));
+    }
+  }, [allAuthorsByNameResponse]);
+
+  // useEffect(() => {
+  //   // setPeople(sortAuthors(selectedOption.sort));
+  //   setSelectedOption(selected)
+  // }, [selectedOption]);
 
   useEffect(() => {
-    if (searchNameResponse) {
-      if (searchNameResponse.authors.length === 0)
+    if (autoSuggestionNamesResponse) {
+      if (autoSuggestionNamesResponse.authors.length === 0)
         return setSuggestions([{ name: searchWord }]);
-      setSuggestions(searchNameResponse.authors);
+      setSuggestions(autoSuggestionNamesResponse.authors);
     }
-  }, [searchNameResponse]);
+  }, [autoSuggestionNamesResponse]);
 
-  useEffect(() => {
-    if (searchNameByAllResponse) {
-      setPeople(
-        sortAuthors(selectedOption.sort, List(searchNameByAllResponse.authors)),
-      );
-    }
-  }, [searchNameByAllResponse]);
+  // useEffect(() => {
+  //   if (allAuthorsByNameResponse) {
+  //     setPeople(
+  //       sortAuthors(
+  //         selectedOption.sort,
+  //         List(allAuthorsByNameResponse.authors),
+  //       ),
+  //     );
+  //   }
+  // }, [allAuthorsByNameResponse]);
 
   const sortAuthors = (sortFn, authors) => {
     if (authors) return List(authors.sort(sortFn));
     return people.sort(sortFn);
   };
 
-  const handleChange = (selectedOpt) => {
+  const handleSortingChange = (selectedOpt) => {
     setSelectedOption(selectedOpt);
+    setPage(1);
+    searchAllAuthorsByName({
+      variables: { filter: { name_contains: searchWord } },
+    });
   };
 
-  const debouncedSearchName = useCallback(debounce(searchName, 500), []);
+  const debouncedGetAutoSuggestionNames = useCallback(
+    debounce(getAutoSuggestionNames, 500),
+    [],
+  );
   const onSuggestionsFetchRequested = ({ value }) => {
-    debouncedSearchName({
+    debouncedGetAutoSuggestionNames({
       variables: { name: value },
     });
   };
@@ -89,8 +121,11 @@ export default function PeoplePage() {
   );
 
   const onSuggestionSelected = (e, { suggestionValue }) => {
-    setSearchWord('');
-    searchNameByAll({ variables: { name: suggestionValue } });
+    // setSearchWord('');
+    setPage(1);
+    searchAllAuthorsByName({
+      variables: { filter: { name_contains: suggestionValue } },
+    });
   };
 
   const shouldRenderSuggestions = (value) => {
@@ -99,8 +134,27 @@ export default function PeoplePage() {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    setSearchWord('');
-    searchNameByAll({ variables: { name: searchWord } });
+    setPage(1);
+    if (searchWord.trim().length > 0) {
+      searchAllAuthorsByName({
+        variables: { filter: { name_contains: searchWord } },
+      });
+    } else {
+      searchAllAuthorsByName({
+        variables: { filter: {} },
+      });
+      setSearchWord('');
+    }
+  };
+
+  const loadMore = () => {
+    setPage(page + 1);
+    searchAllAuthorsByName({
+      variables:
+        searchWord.trim().length > 0
+          ? { filter: { name_contains: searchWord } }
+          : {},
+    });
   };
 
   return (
@@ -119,27 +173,38 @@ export default function PeoplePage() {
                 renderSuggestion={renderSuggestion}
                 inputProps={inputProps}
               />
-              {loadingNames && <img src={Spinner} className="icon" />}
+              {loadingNames && <img src={SpinnerImg} className="icon" />}
             </form>
           </div>
           <div className="sort">
             <Select
               options={options}
               value={selectedOption}
-              onChange={handleChange}
+              onChange={handleSortingChange}
               styles={customStyles}
               isSearchable={false}
             />
           </div>
         </div>
         <div className="main">
-          {people.size === 0 && (
+          {!loadingAllAuthors && people.size === 0 && (
             <div className="no-author">No Author Found.</div>
           )}
+          <Modal active={loadingAllAuthors}>
+            <Spinner></Spinner>
+          </Modal>
           {people.map((person) => {
             return <PersonItem key={person.id} person={person}></PersonItem>;
           })}
         </div>
+        {!loadingAllAuthors &&
+          allAuthorsByNameResponse &&
+          Math.ceil(allAuthorsByNameResponse.authorsCount / PAGE_SIZE) >
+            page && (
+            <div className="loadmore">
+              <Button title="Load More" active onClick={loadMore}></Button>
+            </div>
+          )}
       </div>
     </StyledPeople>
   );
@@ -147,7 +212,7 @@ export default function PeoplePage() {
 
 const options = [
   {
-    value: 'Name Ascending',
+    value: SORT.NAME_ASC,
     label: (
       <span>
         <ArrowUpOutlined />
@@ -161,7 +226,7 @@ const options = [
     },
   },
   {
-    value: 'Name Descending',
+    value: SORT.NAME_DESC,
     label: (
       <span>
         <ArrowDownOutlined />
@@ -174,18 +239,18 @@ const options = [
       if (a.name < b.name) return 1;
     },
   },
-  {
-    value: 'Count',
-    label: (
-      <span>
-        <ArrowDownOutlined />
-        &nbsp; Quotes Number
-      </span>
-    ),
-    sort: (a, b) => {
-      return b.quotes.length - a.quotes.length;
-    },
-  },
+  // {
+  //   value: 'Count',
+  //   label: (
+  //     <span>
+  //       <ArrowDownOutlined />
+  //       &nbsp; Quotes Number
+  //     </span>
+  //   ),
+  //   sort: (a, b) => {
+  //     return b.quotes.length - a.quotes.length;
+  //   },
+  // },
 ];
 
 const customStyles = {

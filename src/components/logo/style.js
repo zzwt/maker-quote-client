@@ -2,6 +2,12 @@ import styled from 'styled-components';
 
 export const StyledLogo = styled.div`
   width: 160px;
+  cursor: pointer;
+  /* &:hover {
+    background: white;
+    color: ${(props) => props.color};
+  } */
+
   .container {
     font-size: 0.7rem;
     border: 1px solid ${(props) => props.color};

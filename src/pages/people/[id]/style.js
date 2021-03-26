@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 export const StyledPeopleDetail = styled.div`
-  background: #2a2a2a;
   padding: 50px 0;
   .back {
     width: 50px;

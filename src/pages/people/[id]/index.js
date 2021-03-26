@@ -93,7 +93,7 @@ export default function PeoplePage(props) {
           {allTags &&
             allTags.map((tag, index) => {
               return (
-                <div className="filterItem">
+                <div className="filterItem" key={tag.id}>
                   <TagWithCount
                     tag={tag}
                     count={tag.count}
