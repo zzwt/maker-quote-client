@@ -24,6 +24,7 @@ export const StyledPersonItem = styled.div`
       font-weight: 500;
       font-size: 0.7rem;
       color: lightgrey;
+      text-align: center;
     }
   }
 `;
