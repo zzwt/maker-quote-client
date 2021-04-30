@@ -19,12 +19,14 @@ const logLink = new ApolloLink((operation, forward) => {
   });
 });
 
+let API_URL = 'http://localhost:1337/graphql';
+if (process.env.NODE_ENV === 'production') {
+  API_URL = 'https://back.makerquote.com/graphql';
+}
+
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  link: ApolloLink.from([
-    apolloLogger,
-    new HttpLink({ uri: 'http://localhost:1337/graphql' }),
-  ]),
+  link: ApolloLink.from([apolloLogger, new HttpLink({ uri: API_URL })]),
 });
 export default function Layout({ children }) {
   return (
