@@ -12,7 +12,12 @@ export const TagsWithCount = gql`
 
 export const GetQuotes = gql`
   query getQuotes($filter: JSON, $limit: Int!, $start: Int!) {
-    quotes(where: $filter, limit: $limit, start: $start) {
+    quotes(
+      where: $filter
+      limit: $limit
+      start: $start
+      sort: "published_at:desc"
+    ) {
       id
       content
       tags {
@@ -28,6 +33,8 @@ export const GetQuotes = gql`
           url
         }
       }
+      wc
+      color
     }
     quotesCount(where: $filter)
   }

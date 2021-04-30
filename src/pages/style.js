@@ -68,7 +68,7 @@ export const StyledQuotes = styled.div`
       padding: 0 35px 35px;
       .main-quote {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
         column-gap: 25px;
       }
       .main-loadmore {

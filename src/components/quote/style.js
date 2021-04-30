@@ -9,7 +9,7 @@ export const StyledQuote = styled.div`
   flex-direction: column;
   .card {
     height: 400px;
-    background: #2e95bb;
+    /* background: ${(props) => props.color}; */
     /* margin: 60px 0 0 0; */
     border-radius: 20px;
     /* padding: 80px 20px 120px 20px; */
@@ -24,11 +24,17 @@ export const StyledQuote = styled.div`
       background-size: cover;
     }
     .content {
+      /* background: lightgrey; */
+      display: flex;
+      align-items: center;
       margin-top: 85px;
       padding: 0 25px;
+      line-height: 1.52;
       color: white;
       /* background: grey; */
       height: 200px;
+      font-size: ${(props) => props.fontSize};
+      text-align: center;
     }
     .name {
       margin: 0 auto 0;
@@ -70,7 +76,6 @@ export const StyledQuote = styled.div`
       border-radius: 13px;
     }
   }
-
   .tags {
     margin: 10px 20px;
     display: flex;
